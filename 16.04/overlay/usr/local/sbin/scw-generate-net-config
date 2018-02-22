@@ -1,0 +1,9 @@
+#! /bin/bash
+
+for iface in $(ls /sys/class/net); do
+    [ "$(printf "ibase=16; %s %% 8\n" $(cat /sys/class/net/$iface/flags | cut -d'x' -f2) | bc)" = "1" ] && continue
+    echo """# Generated at first boot
+auto $iface
+iface $iface inet dhcp
+""" > /etc/network/interfaces.d/$iface.cfg
+done

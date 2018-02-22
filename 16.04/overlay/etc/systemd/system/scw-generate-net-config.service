@@ -1,0 +1,11 @@
+[Unit]
+Description=Generate network configuration on first boot
+ConditionFirstBoot=true
+Before=networking.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/scw-generate-net-config
+
+[Install]
+WantedBy=networking.service
