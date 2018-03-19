@@ -1,6 +1,5 @@
 [Unit]
-Description=Generate network configuration on first boot
-ConditionFirstBoot=true
+Description=Generate network configuration
 Before=networking.service
 
 [Service]

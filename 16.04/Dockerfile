@@ -1,6 +1,7 @@
 ## -*- docker-image-name: "scaleway/ubuntu:xenial" -*-
 ARG MULTIARCH_ARCH
 FROM multiarch/ubuntu-debootstrap:${MULTIARCH_ARCH}-xenial
+ARG SCW_ARCH
 
 MAINTAINER Scaleway <opensource@scaleway.com> (@scaleway)
 
@@ -11,8 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 
 # Configure aptitude
-# Note that, `${ARCH}` is set in the multiarch/ubuntu-debootstrap image
-COPY ./overlay-${ARCH}/etc/apt/ /etc/apt/
+COPY ./overlay-${SCW_ARCH}/etc/apt/ /etc/apt/
 
 
 # Adding and calling builder-enter
@@ -33,7 +33,7 @@ RUN export FLASH_KERNEL_SKIP=1; apt-get -q update && \
       install --only-upgrade base-files   && \
     rm -rf /etc/update-motd.d/*.dpkg-dist && \
     apt-get -y -qq upgrade && \
-    apt-get -y -qq $(test ${ARCH} = "armv7l" && echo "--allow-downgrades") install \
+    apt-get -y -qq $(test ${SCW_ARCH} = "arm" && echo "--allow-downgrades") install \
 	bash \
 	bash-completion \
 	bc \
@@ -94,13 +94,19 @@ RUN export FLASH_KERNEL_SKIP=1; apt-get -q update && \
 	&& apt-get clean
 
 
+# Remove keys created during installed, to be created on first boot
+RUN rm -v /etc/ssh/ssh_host_*key*
+
+
 # Patch rootfs
 # - Tweaks rootfs so it matches Scaleway infrastructure
 RUN rm -f /etc/update-motd.d/10-help-text /etc/update-motd.d/00-header
-COPY ./overlay-base/ ./overlay/ ./overlay-${ARCH}/ /
+COPY ./overlay-base/ ./overlay/ ./overlay-${SCW_ARCH}/ /
 
-# remove root password, it will be created by the initrd
+
+# remove root password, it will be created on first boot
 RUN passwd -d root
+
 
 # Configure locales
 RUN locale-gen en_US.UTF-8 && \
@@ -108,11 +114,8 @@ RUN locale-gen en_US.UTF-8 && \
 	dpkg-reconfigure locales
 
 
-# Default target
-RUN systemctl set-default multi-user
-
-
 # Configure Systemd
+RUN systemctl set-default multi-user
 RUN systemctl preset --preset-mode=full $(cat /etc/systemd/system-preset/scw*.preset | cut -d' ' -f2 | tr '\n' ' ')
 
 
