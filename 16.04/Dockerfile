@@ -1,12 +1,7 @@
 ## -*- docker-image-name: "scaleway/ubuntu:xenial" -*-
-FROM multiarch/ubuntu-debootstrap:amd64-xenial
-# following 'FROM' lines are used dynamically thanks do the image-builder
-# which dynamically update the Dockerfile if needed.
-#FROM multiarch/ubuntu-debootstrap:armhf-xenial	# arch=armv7l
-#FROM multiarch/ubuntu-debootstrap:arm64-xenial	# arch=arm64
-#FROM multiarch/ubuntu-debootstrap:i386-xenial	# arch=i386
-#FROM multiarch/ubuntu-debootstrap:mips-xenial	# arch=mips
-
+ARG MULTIARCH_ARCH
+FROM multiarch/ubuntu-debootstrap:${MULTIARCH_ARCH}-xenial
+ARG SCW_ARCH
 
 MAINTAINER Scaleway <opensource@scaleway.com> (@scaleway)
 
@@ -17,12 +12,11 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 
 # Configure aptitude
-# Note that, `${ARCH}` is set in the multiarch/ubuntu-debootstrap image
-COPY ./overlay-${ARCH}/etc/apt/ /etc/apt/
+COPY ./overlay-${SCW_ARCH}/etc/apt/ /etc/apt/
 
 
 # Adding and calling builder-enter
-COPY ./overlay-image-tools/usr/local/sbin/scw-builder-enter /usr/local/sbin/
+COPY ./overlay-base/usr/local/sbin/scw-builder-enter /usr/local/sbin/
 RUN /usr/local/sbin/scw-builder-enter
 
 
@@ -32,14 +26,14 @@ RUN /usr/local/sbin/scw-builder-enter
 # incompatible with the udev package. For this architecture and this
 # architecture only, allow downgrading (with --allow-downgrades) libudev1
 # otherwise apt-get install fails.
-RUN apt-get -q update && \
+RUN export FLASH_KERNEL_SKIP=1; apt-get -q update && \
     apt-get                                \
       -o Dpkg::Options::='--force-confold' \
       -o Dpkg::Options::='--force-confdef' \
       install --only-upgrade base-files   && \
     rm -rf /etc/update-motd.d/*.dpkg-dist && \
     apt-get -y -qq upgrade && \
-    apt-get -y -qq $(test ${ARCH} = "armv7l" && echo "--allow-downgrades") install \
+    apt-get -y -qq $(test ${SCW_ARCH} = "arm" && echo "--allow-downgrades") install \
 	bash \
 	bash-completion \
 	bc \
@@ -51,6 +45,7 @@ RUN apt-get -q update && \
 	ethstatus \
 	file \
 	fio \
+	grub-efi-$(dpkg --print-architecture | sed 's/armhf/arm/') \
 	haveged \
 	htop \
 	ioping \
@@ -60,6 +55,7 @@ RUN apt-get -q update && \
 	iputils-ping \
 	isc-dhcp-client \
 	less \
+	linux-image-generic \
 	locate \
 	lsb-release \
 	lsof \
@@ -74,12 +70,14 @@ RUN apt-get -q update && \
 	ntp \
 	ntpdate \
 	python-apt \
+	python-software-properties \
 	python-yaml \
 	rsync \
 	rsyslog \
 	screen \
 	shunit2 \
 	socat \
+	software-properties-common \
 	ssh \
 	sudo \
 	sysstat \
@@ -96,13 +94,19 @@ RUN apt-get -q update && \
 	&& apt-get clean
 
 
+# Remove keys created during installed, to be created on first boot
+RUN rm -v /etc/ssh/ssh_host_*key*
+
+
 # Patch rootfs
 # - Tweaks rootfs so it matches Scaleway infrastructure
 RUN rm -f /etc/update-motd.d/10-help-text /etc/update-motd.d/00-header
-COPY ./overlay/ ./overlay-image-tools/ ./overlay-${ARCH}/ /
+COPY ./overlay-base/ ./overlay/ ./overlay-${SCW_ARCH}/ /
 
-# remove root password, it will be created by the initrd
+
+# remove root password, it will be created on first boot
 RUN passwd -d root
+
 
 # Configure locales
 RUN locale-gen en_US.UTF-8 && \
@@ -110,21 +114,9 @@ RUN locale-gen en_US.UTF-8 && \
 	dpkg-reconfigure locales
 
 
-# Default target
-RUN systemctl set-default multi-user
-
-
 # Configure Systemd
-RUN systemctl enable \
-    scw-fetch-ssh-keys \
-	scw-sync-kernel-modules \
-	scw-generate-ssh-keys \
-	scw-kernel-check \
- && systemctl disable \
-	kmod-static-nodes.service \
-	proc-sys-fs-binfmt_misc.automount \
-	systemd-modules-load.service \
-	systemd-update-utmp-runlevel
+RUN systemctl set-default multi-user
+RUN systemctl preset --preset-mode=full $(cat /etc/systemd/system-preset/scw*.preset | cut -d' ' -f2 | tr '\n' ' ')
 
 
 # make /sbin/init a relative symlink for initrd boot
@@ -133,14 +125,10 @@ RUN rm -f /sbin/init /bin/init \
  && ln -sf ../lib/systemd/systemd /bin/init
 
 
-RUN rm -f /etc/machine-id /var/lib/dbus/machine-id
-
 # Fix permissions
 RUN chown root:syslog /var/log \
  && chmod 755 /etc/default
 
-# HotFix Reboot
-RUN systemctl mask networking
 
 # Clean rootfs from image-builder
 RUN /usr/local/sbin/scw-builder-leave

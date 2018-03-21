@@ -1,19 +1,13 @@
 ## -*- docker-image-name: "scaleway/ubuntu:trusty" -*-
-FROM multiarch/ubuntu-debootstrap:amd64-trusty
-# following 'FROM' lines are used dynamically thanks do the image-builder
-# which dynamically update the Dockerfile if needed.
-#FROM multiarch/ubuntu-debootstrap:armhf-trusty	# arch=armv7l
-#FROM multiarch/ubuntu-debootstrap:i386-trusty	# arch=i386
-#FROM multiarch/ubuntu-debootstrap:amd64-trusty	# arch=x86_64
-#FROM multiarch/ubuntu-debootstrap:mips-trusty	# arch=mips
+ARG ARCH
+FROM multiarch/ubuntu-debootstrap:${ARCH}-trusty
 
 
 MAINTAINER Scaleway <opensource@scaleway.com> (@scaleway)
 
 
 # Environment
-ENV DEBIAN_FRONTEND=noninteractive \
-    SCW_BASE_IMAGE=scaleway/ubuntu:trusty
+ENV DEBIAN_FRONTEND=noninteractive
 
 
 # Configure aptitude
@@ -22,7 +16,7 @@ COPY ./overlay-${ARCH}/etc/apt/ /etc/apt/
 
 
 # Adding and calling builder-enter
-COPY ./overlay-image-tools/usr/local/sbin/scw-builder-enter /usr/local/sbin/
+COPY ./overlay-base/usr/local/sbin/scw-builder-enter /usr/local/sbin/
 RUN /usr/local/sbin/scw-builder-enter
 
 
@@ -68,6 +62,7 @@ RUN apt-get -q update && \
 	ntp \
 	ntpdate \
 	python-apt \
+	python-software-properties \
 	python-yaml \
 	rsync \
 	rsyslog \
@@ -92,7 +87,7 @@ RUN apt-get -q update && \
 # Patch rootfs
 # - Tweaks rootfs so it matches Scaleway infrastructure
 RUN rm -f /etc/update-motd.d/10-help-text /etc/update-motd.d/00-header
-COPY ./overlay/ ./overlay-image-tools/ ./overlay-${ARCH}/ /
+COPY ./overlay-base/ ./overlay/ ./overlay-${ARCH}/ /
 
 
 # remove root password, it will be created by the initrd
