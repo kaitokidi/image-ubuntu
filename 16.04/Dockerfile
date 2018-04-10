@@ -26,7 +26,8 @@ RUN /usr/local/sbin/scw-builder-enter
 # incompatible with the udev package. For this architecture and this
 # architecture only, allow downgrading (with --allow-downgrades) libudev1
 # otherwise apt-get install fails.
-RUN export FLASH_KERNEL_SKIP=1; apt-get -q update && \
+ENV FLASH_KERNEL_SKIP 1
+RUN apt-get -q update && \
     apt-get                                \
       -o Dpkg::Options::='--force-confold' \
       -o Dpkg::Options::='--force-confdef' \

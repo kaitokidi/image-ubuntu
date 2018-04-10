@@ -15,7 +15,8 @@ RUN /usr/local/sbin/scw-builder-enter
 
 
 # Install packages
-RUN export FLASH_KERNEL_SKIP=1; apt-get update && \
+ENV FLASH_KERNEL_SKIP 1
+RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get -y  install \
     ubuntu-standard \
