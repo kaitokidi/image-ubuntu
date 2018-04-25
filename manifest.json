@@ -13,6 +13,16 @@
                 "arm", "arm64", "x86_64"
             ],
             "marketplace-id": "acf93867-88d9-40ee-99ea-6b2bb1ee8f0c"
+        },
+        "xenial-25g": {
+            "directory": "16.04",
+            "architectures": [
+                "x86_64"
+            ],
+            "marketplace-id": "517d56e1-7d2c-46a7-9734-65cf7d8d8297",
+            "options": {
+                "disk-size": "25G",
+            }
         }
     }
 }
