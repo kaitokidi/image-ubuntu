@@ -21,8 +21,15 @@
             ],
             "marketplace-id": "517d56e1-7d2c-46a7-9734-65cf7d8d8297",
             "options": {
-                "disk-size": "25G",
+                "disk-size": "25G"
             }
+        },
+        "bionic": {
+            "directory": "18.04",
+            "architectures": [
+                "x86_64"
+            ],
+            "marketplace-id": "b381b2bf-804a-4b12-91f6-9f4ff273462f"
         }
     }
 }
