@@ -1,4 +1,4 @@
-## -*- docker-image-name: "scaleway/ubuntu:artful" -*-
+## -*- docker-image-name: "scaleway/ubuntu:bionic" -*-
 ARG DOCKER_ARCH
 FROM ${DOCKER_ARCH}/ubuntu:bionic
 ARG SCW_ARCH
