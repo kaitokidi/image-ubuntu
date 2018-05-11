@@ -20,16 +20,16 @@ if [ ! -z "$IPV6_ADDR" ] && [ ! -z "$IPV6_NMASK" ] && [ ! -z "IPV6_GW" ]; then
 			ip -6 r add default via ${IPV6_GW} dev $iface
 
 			# add ipv6 configuration to interface file
-			if [ $(grep -c "IPv6 configuration for $iface" ${NETCONFIG_PATH}/$iface.cfg) -eq 0 ]; then
-				cat <<EOF>>${NETCONFIG_PATH}/$iface.cfg
+			cat <<EOF>${NETCONFIG_PATH}/$iface.inet6.cfg
 # IPv6 configuration for $iface
 iface $iface inet6 static
 	address $IPV6_ADDR
 	netmask $IPV6_NMASK
 	gateway $IPV6_GW
 EOF
-			fi
                 fi
+	# only assign to the first physical interface
+	break;
         done
 fi
 
