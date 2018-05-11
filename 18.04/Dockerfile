@@ -55,6 +55,8 @@ RUN systemctl preset --preset-mode=full $(cat /etc/systemd/system-preset/scw*.pr
 # Remove dbus machine-id
 RUN rm /var/lib/dbus/machine-id
 
+# Remove the Ubuntu landscape motd as we duplicate this
+RUN rm /etc/update-motd.d/50-landscape-sysinfo
 
 # Clean rootfs from image-builder
 RUN /usr/local/sbin/scw-builder-leave
