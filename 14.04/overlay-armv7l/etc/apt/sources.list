@@ -1,6 +1,8 @@
 deb http://mirror.scaleway.com/ubuntu-ports trusty main universe
 deb http://ports.ubuntu.com/ubuntu-ports trusty main universe
-deb-src http://ports.ubuntu.com/ubuntu-ports trusty main universe
 
-deb http://ports.ubuntu.com trusty-security main
-deb http://ports.ubuntu.com trusty-security universe
+deb http://mirror.scaleway.com/ubuntu-ports trusty-updates main universe
+deb http://ports.ubuntu.com/ubuntu-ports trusty-updates main universe
+
+deb http://mirror.scaleway.com/ubuntu-ports trusty-security main universe
+deb http://ports.ubuntu.com/ubuntu-ports trusty-security main universe
