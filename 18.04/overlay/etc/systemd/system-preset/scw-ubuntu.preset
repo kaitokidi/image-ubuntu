@@ -1,4 +1,1 @@
-enable scw-generate-net-config
-enable scw-generate-ssh-keys
 enable scw-relink-resolv-conf
-enable scw-net-ipv6
