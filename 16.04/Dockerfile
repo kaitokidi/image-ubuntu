@@ -40,6 +40,7 @@ RUN apt-get -q update && \
 	bc \
 	ca-certificates \
 	cron \
+	command-not-found \
 	curl \
 	dbus \
 	dstat \
