@@ -5,5 +5,5 @@ IMAGE_TITLE = Ubuntu Bionic Beaver
 IMAGE_DESCRIPTION = Ubuntu Bionic Beaver (18.04 LTS)
 IMAGE_SOURCE_URL = https://github.com/scaleway/image-ubuntu
 IMAGE_VENDOR_URL = http://www.ubuntu.com
-IMAGE_BOOTSCRIPT = mainline 4.14
+IMAGE_BOOTSCRIPT = mainline 4.9
 IMAGE_BASE_FLAVORS = common docker-based systemd feature-motd
