@@ -18,15 +18,19 @@ RUN /usr/local/sbin/scw-builder-enter
 RUN export FLASH_KERNEL_SKIP=1; apt-get update && \
     apt-get -y upgrade && \
     apt-get -y  install \
+    dmidecode \
     ubuntu-standard \
     ubuntu-server \
     ifupdown \
     openssh-server \
     locales \
     linux-image-generic \
+    software-properties-common \
     grub-efi-$(dpkg --print-architecture | sed 's/armhf/arm/') \
     && apt-get clean
 
+# Add Scaleway PPA
+RUN add-apt-repository ppa:scaleway/stable && apt-get update && apt-get -y install cloud-init
 
 # Remove keys created during installed, to be created on first boot
 RUN rm -v /etc/ssh/ssh_host_*key*
@@ -51,6 +55,12 @@ RUN locale-gen en_US.UTF-8 && \
 RUN systemctl set-default multi-user
 RUN systemctl preset --preset-mode=full $(cat /etc/systemd/system-preset/scw*.preset | cut -d' ' -f2 | tr '\n' ' ')
 
+# Disable systemd units that are handled by cloud-init
+RUN cd /etc/systemd/system && for I in $(ls scw* | egrep -v 'gen-machine-id|generate-root-passwd');do systemctl disable $I;done
+
+# Enable root login to stay backward-compatible
+# Otherwise cloud-init disables it
+RUN sed -i 's/disable_root: true/disable_root: false/' /etc/cloud/cloud.cfg
 
 # Remove dbus machine-id
 RUN rm /var/lib/dbus/machine-id
