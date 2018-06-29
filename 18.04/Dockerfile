@@ -55,9 +55,6 @@ RUN locale-gen en_US.UTF-8 && \
 RUN systemctl set-default multi-user
 RUN systemctl preset --preset-mode=full $(cat /etc/systemd/system-preset/*scw*.preset | cut -d' ' -f2 | tr '\n' ' ')
 
-# Disable systemd units that are handled by cloud-init
-RUN cd /etc/systemd/system && for I in $(ls scw* | egrep -v 'gen-machine-id|generate-root-passwd');do systemctl disable $I;done
-
 # Enable root login to stay backward-compatible
 # Otherwise cloud-init disables it
 RUN sed -i 's/disable_root: true/disable_root: false/' /etc/cloud/cloud.cfg
