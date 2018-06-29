@@ -1,1 +1,1 @@
-enable scw-relink-resolv-conf
+enable scw-relink-resolv-conf.service
