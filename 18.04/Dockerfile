@@ -55,10 +55,6 @@ RUN locale-gen en_US.UTF-8 && \
 RUN systemctl set-default multi-user
 RUN systemctl preset --preset-mode=full $(cat /etc/systemd/system-preset/*scw*.preset | cut -d' ' -f2 | tr '\n' ' ')
 
-# Enable root login to stay backward-compatible
-# Otherwise cloud-init disables it
-RUN sed -i 's/disable_root: true/disable_root: false/' /etc/cloud/cloud.cfg
-
 # Remove dbus machine-id
 RUN rm /var/lib/dbus/machine-id
 
