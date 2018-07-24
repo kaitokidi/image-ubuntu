@@ -123,9 +123,6 @@ RUN locale-gen en_US.UTF-8 && \
 RUN systemctl set-default multi-user
 RUN systemctl preset --preset-mode=full $(cat /etc/systemd/system-preset/*scw*.preset | cut -d' ' -f2 | tr '\n' ' ')
 
-# Enable root login to stay backward-compatible
-# Otherwise cloud-init disables it
-RUN sed -i 's/disable_root: true/disable_root: false/' /etc/cloud/cloud.cfg
 # make /sbin/init a relative symlink for initrd boot
 RUN rm -f /sbin/init /bin/init \
  && ln -sf ../lib/systemd/systemd /sbin/init \
