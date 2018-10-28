@@ -8,8 +8,6 @@ Scripts to build the official Ubuntu images on Scaleway
 
 These images are built using [Image Tools](https://github.com/scaleway/image-tools) and depends on the [armhf port of ubuntu-deboostrap docker images](https://registry.hub.docker.com/u/armbuild/ubuntu-debootstrap/).
 
-<img src="http://design.ubuntu.com/wp-content/uploads/logo-ubuntu_no®-black_orange-hex.svg" width="250px" />
-
 ---
 
 **This image is meant to be used on a C1 server.**
